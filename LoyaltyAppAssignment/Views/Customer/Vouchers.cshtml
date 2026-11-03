@@ -1,0 +1,493 @@
+﻿
+@{
+    ViewData["Title"] = "My Vouchers";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>Vouchers | Brew & Bean</title>
+
+    <link rel="stylesheet"
+          href="~/css/customer.css"
+          asp-append-version="true" />
+</head>
+
+<body class="vouchers-page">
+
+    <!-- NAVIGATION -->
+    <header class="customer-navbar">
+
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="navbar-brand">
+            ☕ BREW & BEAN
+        </a>
+
+        <nav>
+            <a asp-controller="Customer"
+               asp-action="Dashboard">Home</a>
+
+            <a asp-controller="Customer"
+               asp-action="Rewards">Rewards</a>
+
+            <a asp-controller="Customer"
+               asp-action="Vouchers"
+               class="active">Vouchers</a>
+
+            <a asp-controller="Customer"
+               asp-action="Profile">My Profile</a>
+        </nav>
+
+        <form asp-controller="Customer"
+              asp-action="Logout"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="navbar-logout">
+                Logout
+            </button>
+        </form>
+    </header>
+
+    <main class="vouchers-container">
+
+        <!-- HEADER -->
+        <section class="vouchers-heading">
+
+            <p class="form-subtitle">
+                EXCLUSIVE MEMBER BENEFITS
+            </p>
+
+            <h1>Your Voucher Wallet.</h1>
+
+            <p>
+                Enjoy exclusive café deals, special treats,
+                and a little extra happiness with every visit.
+            </p>
+
+        </section>
+
+        <!-- BANNER -->
+        <section class="vouchers-banner">
+
+            <div>
+                <p class="form-subtitle">A TREAT JUST FOR YOU</p>
+
+                <h2>
+                    Little perks.<br />
+                    <em>Big smiles.</em>
+                </h2>
+
+                <p>
+                    Browse your vouchers and discover
+                    something special for your next café visit.
+                </p>
+            </div>
+
+            <div class="vouchers-banner-icon">
+                🎟️
+            </div>
+
+        </section>
+
+        <!-- VOUCHER FILTERS -->
+        <section class="voucher-wallet">
+
+            <div class="voucher-wallet-heading">
+                <p class="form-subtitle">YOUR MEMBER BENEFITS</p>
+                <h2>Explore Vouchers</h2>
+            </div>
+
+            <div class="voucher-tabs">
+
+                <button type="button"
+                        class="voucher-tab active"
+                        data-type="active">
+                    Available
+                    <span id="activeCount">0</span>
+                </button>
+
+                <button type="button"
+                        class="voucher-tab"
+                        data-type="claimed">
+                    Claimed
+                    <span id="claimedCount">0</span>
+                </button>
+
+                <button type="button"
+                        class="voucher-tab"
+                        data-type="expired">
+                    Expired
+                    <span id="expiredCount">0</span>
+                </button>
+
+            </div>
+
+            <div id="voucherContainer" class="voucher-grid">
+                <p>Loading vouchers...</p>
+            </div>
+
+        </section>
+
+        <!-- VOUCHER DETAILS -->
+        <section id="voucherDetails"
+                 class="voucher-details"
+                 style="display:none;">
+
+            <p class="form-subtitle">
+                VOUCHER INFORMATION
+            </p>
+
+            <h2 id="voucherDetailTitle"></h2>
+
+            <p id="voucherDetailSubtitle"></p>
+
+            <div class="voucher-detail-info">
+
+                <div>
+                    <small>VOUCHER</small>
+                    <strong id="voucherDetailName"></strong>
+                </div>
+
+                <div>
+                    <small>EXPIRATION</small>
+                    <strong id="voucherDetailExpiry"></strong>
+                </div>
+
+            </div>
+
+            <h3>Description</h3>
+            <p id="voucherDetailDescription"></p>
+
+            <h3>Terms & Conditions</h3>
+            <p id="voucherDetailTnC"></p>
+
+            
+<!-- VOUCHER REDEMPTION -->
+<div id="voucherRedeemSection" class="redeem-section">
+
+    <p class="form-subtitle">READY TO REDEEM?</p>
+
+    <h3>Redeem This Voucher</h3>
+
+    <p class="redeem-description">
+        Enter your account password and ask the outlet staff
+        to enter their PIN to confirm redemption.
+    </p>
+
+    <div id="voucherRedeemMessage" class="register-message"></div>
+
+    <form id="voucherRedeemForm">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               id="selectedVoucherGUID"
+               name="VoucherGUID" />
+
+        <div class="input-group">
+            <label for="VoucherMemberPassword">
+                Your Account Password
+            </label>
+
+            <input type="password"
+                   id="VoucherMemberPassword"
+                   name="MemberPassword"
+                   placeholder="Enter your account password"
+                   required />
+        </div>
+
+        <div class="input-group">
+            <label for="VoucherStaffPin">
+                Outlet Staff PIN
+            </label>
+
+            <input type="password"
+                   id="VoucherStaffPin"
+                   name="OutletStaffPin"
+                   placeholder="Staff enters PIN here"
+                   required />
+        </div>
+
+        <button type="submit"
+                id="voucherRedeemButton"
+                class="login-btn">
+            Confirm Redemption
+        </button>
+
+    </form>
+
+</div>
+
+
+            <button type="button"
+                    id="closeVoucherDetails"
+                    class="reward-back-button">
+                Close Details
+            </button>
+
+        </section>
+
+    </main>
+
+    <footer class="dashboard-footer">
+        <span>☕ BREW & BEAN</span>
+        <p>Good coffee. Good moments. Better rewards.</p>
+        <small>© 2026 Brew & Bean</small>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+        $(function () {
+
+            var voucherData = {
+                activeVouchers: [],
+                claimedVouchers: [],
+                expiredVouchers: []
+            };
+
+            // LOAD VOUCHERS
+            $.ajax({
+                url: '@Url.Action("GetVouchers", "Customer")',
+                type: "GET",
+
+                success: function (response) {
+
+                    voucherData = response;
+
+                    $("#activeCount").text(
+                        response.activeVouchers.length
+                    );
+
+                    $("#claimedCount").text(
+                        response.claimedVouchers.length
+                    );
+
+                    $("#expiredCount").text(
+                        response.expiredVouchers.length
+                    );
+
+                    showVouchers("active");
+                },
+
+                error: function (xhr) {
+
+                    if (xhr.status === 401) {
+                        window.location.href =
+                            '@Url.Action("Login", "Customer")';
+                    }
+                    else {
+                        $("#voucherContainer").text(
+                            "Unable to load vouchers."
+                        );
+                    }
+                }
+            });
+
+
+            // DISPLAY VOUCHERS
+            function showVouchers(type) {
+
+                var vouchers = [];
+
+                if (type === "active") {
+                    vouchers = voucherData.activeVouchers;
+                }
+                else if (type === "claimed") {
+                    vouchers = voucherData.claimedVouchers;
+                }
+                else {
+                    vouchers = voucherData.expiredVouchers;
+                }
+
+                $("#voucherContainer").empty();
+                $("#voucherDetails").hide();
+
+                if (vouchers.length === 0) {
+
+                    $("#voucherContainer").html(
+                        '<div class="voucher-empty">' +
+                        '<div>☕</div>' +
+                        '<h3>No vouchers here yet</h3>' +
+                        '<p>Check back soon for more café treats!</p>' +
+                        '</div>'
+                    );
+
+                    return;
+                }
+
+                $.each(vouchers, function (index, voucher) {
+
+                    var card = $("<div>")
+                        .addClass("voucher-card");
+
+                    var icon = $("<div>")
+                        .addClass("voucher-card-icon")
+                        .text("🎟️");
+
+                    var content = $("<div>")
+                        .addClass("voucher-card-content");
+
+                    content.append(
+                        $("<p>").addClass("form-subtitle")
+                            .text(voucher.shortTitle || "MEMBER VOUCHER")
+                    );
+
+                    content.append(
+                        $("<h3>").text(voucher.title || voucher.voucherName)
+                    );
+
+                    content.append(
+                        $("<p>").addClass("voucher-description")
+                            .text(voucher.description || "")
+                    );
+
+                    var status = $("<span>")
+                        .addClass("voucher-status")
+                        .text(type === "active" ? "AVAILABLE" :
+                              type === "claimed" ? "CLAIMED" : "EXPIRED");
+
+                    content.append(status);
+
+                    var button = $("<button>")
+                        .addClass("reward-view-button")
+                        .text("View Details");
+
+                    button.click(function () {
+                        $("#voucherDetailTitle").text(
+                            voucher.title || voucher.voucherName
+                        );
+
+                        $("#voucherDetailSubtitle").text(
+                            voucher.subtitle || ""
+                        );
+
+                        $("#voucherDetailName").text(
+                            voucher.voucherName || ""
+                        );
+
+                        var expiry = voucher.expiredDate
+                            ? new Date(voucher.expiredDate).toLocaleDateString()
+                            : "Not specified";
+
+                        $("#voucherDetailExpiry").text(expiry);
+
+                        $("#voucherDetailDescription").text(
+                            voucher.description || "No description available."
+                        );
+
+                        $("#voucherDetailTnC").text(
+                            voucher.tnC || "No terms specified."
+                        );
+                        
+    // Clear previous redemption inputs
+    $("#voucherRedeemForm")[0].reset();
+    $("#voucherRedeemMessage").text("")
+        .removeClass("success error");
+
+    // Remember which voucher was selected
+    $("#selectedVoucherGUID").val(voucher.voucherGUID);
+
+    // Only available vouchers can be redeemed
+    if (type === "active") {
+        $("#voucherRedeemSection").show();
+    }
+    else {
+        $("#voucherRedeemSection").hide();
+    }
+
+
+                        $("#voucherDetails").slideDown();
+
+                        document.getElementById("voucherDetails")
+                            .scrollIntoView({ behavior: "smooth" });
+                    });
+
+                    content.append(button);
+
+                    card.append(icon);
+                    card.append(content);
+
+                    $("#voucherContainer").append(card);
+                });
+            }
+
+
+            // SWITCH TABS
+            $(".voucher-tab").click(function () {
+
+                $(".voucher-tab").removeClass("active");
+                $(this).addClass("active");
+
+                var type = $(this).data("type");
+
+                showVouchers(type);
+            });
+
+
+            // CLOSE DETAILS
+            $("#closeVoucherDetails").click(function () {
+                $("#voucherDetails").slideUp();
+            });
+            
+    // REDEEM VOUCHER
+    $("#voucherRedeemForm").submit(function (e) {
+        e.preventDefault();
+
+        $("#voucherRedeemButton").prop("disabled", true);
+        $("#voucherRedeemButton").text("Redeeming...");
+
+        $("#voucherRedeemMessage").text("");
+
+        $.ajax({
+            url: '@Url.Action("RedeemVoucher", "Customer")',
+            type: "POST",
+            data: $("#voucherRedeemForm").serialize(),
+
+            success: function (response) {
+                if (response.success) {
+
+                    alert(response.message);
+
+                    // Reload to refresh available and claimed vouchers
+                    location.reload();
+                }
+            },
+
+            error: function (xhr) {
+                if (xhr.status === 401) {
+                    window.location.href =
+                        '@Url.Action("Login", "Customer")';
+
+                    return;
+                }
+
+                var message = xhr.responseJSON?.message
+                    || "Unable to redeem voucher.";
+
+                $("#voucherRedeemMessage")
+                    .text(message)
+                    .removeClass("success")
+                    .addClass("error");
+            },
+
+            complete: function () {
+                $("#voucherRedeemButton").prop("disabled", false);
+                $("#voucherRedeemButton").text("Confirm Redemption");
+            }
+        });
+    });
+
+        });
+    </script>
+
+</body>
+</html>

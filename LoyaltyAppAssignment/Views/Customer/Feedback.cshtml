@@ -1,0 +1,428 @@
+﻿
+@model LoyaltyAppAssignment.ViewModels.FeedbackViewModel
+
+@{
+    ViewData["Title"] = "Customer Feedback";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>Feedback | Brew & Bean</title>
+
+    <link rel="stylesheet"
+          href="~/css/customer.css"
+          asp-append-version="true" />
+</head>
+
+<body class="feedback-page">
+
+    <!-- NAVIGATION -->
+    <header class="customer-navbar">
+
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="navbar-brand">
+            ☕ BREW & BEAN
+        </a>
+
+        <nav>
+            <a asp-controller="Customer"
+               asp-action="Dashboard">Home</a>
+
+            <a asp-controller="Customer"
+               asp-action="Rewards">Rewards</a>
+
+            <a asp-controller="Customer"
+               asp-action="Vouchers">Vouchers</a>
+
+            <a asp-controller="Customer"
+               asp-action="CollectPoints">Collect Points</a>
+
+            <a asp-controller="Customer"
+               asp-action="History">History</a>
+
+            <a asp-controller="Customer"
+               asp-action="Outlets">Outlets</a>
+
+            <a asp-controller="Customer"
+               asp-action="Feedback"
+               class="active">Feedback</a>
+
+            <a asp-controller="Customer"
+               asp-action="Profile">My Profile</a>
+        </nav>
+
+        <form asp-controller="Customer"
+              asp-action="Logout"
+              method="post">
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="navbar-logout">
+                Logout
+            </button>
+        </form>
+    </header>
+
+    <main class="feedback-container">
+
+        <!-- PAGE HEADER -->
+        <section class="feedback-heading">
+
+            <p class="form-subtitle">YOUR VOICE MATTERS</p>
+
+            <h1>
+                Tell us about<br />
+                <em>your experience.</em>
+            </h1>
+
+            <p>
+                Whether it's a compliment, suggestion,
+                or something we could improve,
+                we'd love to hear from you.
+            </p>
+
+        </section>
+
+        <!-- BANNER -->
+        <section class="feedback-banner">
+
+            <div>
+                <p class="form-subtitle">BREWED WITH CARE</p>
+
+                <h2>
+                    Good coffee.<br />
+                    <em>Better together.</em>
+                </h2>
+
+                <p>
+                    Your feedback helps us create better
+                    coffee moments for everyone.
+                </p>
+            </div>
+
+            <div class="feedback-banner-icon">💬</div>
+
+        </section>
+
+        <!-- FEEDBACK FORM -->
+        <section class="feedback-form-card">
+
+            <div class="feedback-form-heading">
+                <p class="form-subtitle">SHARE YOUR THOUGHTS</p>
+
+                <h2>We'd love to hear from you.</h2>
+
+                <p>
+                    Complete the form below to share
+                    your café experience.
+                </p>
+            </div>
+
+            <div id="feedbackMessage"
+                 class="register-message"
+                 role="status"
+                 aria-live="polite"></div>
+
+            <form id="feedbackForm">
+                @Html.AntiForgeryToken()
+
+                <!-- RATING -->
+                <div class="feedback-field">
+
+                    <label>How was your experience?</label>
+
+                    <div class="star-rating" role="group"
+                         aria-label="Experience rating">
+
+                        <button type="button" class="star-button"
+                                data-rating="1" aria-label="1 star">★</button>
+
+                        <button type="button" class="star-button"
+                                data-rating="2" aria-label="2 stars">★</button>
+
+                        <button type="button" class="star-button"
+                                data-rating="3" aria-label="3 stars">★</button>
+
+                        <button type="button" class="star-button"
+                                data-rating="4" aria-label="4 stars">★</button>
+
+                        <button type="button" class="star-button"
+                                data-rating="5" aria-label="5 stars">★</button>
+
+                    </div>
+
+                    <p id="ratingText" class="rating-text">
+                        Select a star rating
+                    </p>
+
+                    <input type="hidden"
+                           id="Rating"
+                           name="Rating"
+                           value="0" />
+
+                </div>
+
+                <!-- TITLE -->
+                <div class="input-group">
+
+                    <label for="Title">Feedback Title</label>
+
+                    <input asp-for="Title"
+                           maxlength="100"
+                           placeholder="e.g. Wonderful coffee experience!"
+                           required />
+
+                </div>
+
+                <!-- CATEGORY -->
+                <div class="input-group">
+
+                    <label for="Category">Feedback Category</label>
+
+                    <select asp-for="Category" required>
+                        <option value="">-- Select Category --</option>
+                        <option value="Service">Service</option>
+                        <option value="Food">Food & Drinks</option>
+                        <option value="Environment">Environment</option>
+                        <option value="Rewards">Rewards & Membership</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                </div>
+
+                <!-- OUTLET -->
+                <div class="input-group">
+
+                    <label for="Location">Café Location</label>
+
+                    <select asp-for="Location" required>
+                        <option value="">Loading café outlets...</option>
+                    </select>
+
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="input-group">
+
+                    <label for="Description">Your Feedback</label>
+
+                    <textarea asp-for="Description"
+                              rows="6"
+                              maxlength="1000"
+                              placeholder="Tell us about your experience..."
+                              required></textarea>
+
+                    <p class="feedback-character-count">
+                        <span id="characterCount">0</span> / 1000 characters
+                    </p>
+
+                </div>
+
+                <button type="submit"
+                        id="submitFeedbackButton"
+                        class="login-btn">
+                    Submit Feedback
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- FOOTER MESSAGE -->
+        <div class="feedback-bottom-message">
+            <span>☕</span>
+            <h2>Thanks for being part of our story.</h2>
+            <p>
+                Every cup, every visit, every opinion matters.
+            </p>
+        </div>
+
+    </main>
+
+    <footer class="dashboard-footer">
+        <span>☕ BREW & BEAN</span>
+        <p>Good coffee. Good moments. Better rewards.</p>
+        <small>© 2026 Brew & Bean</small>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+        $(function () {
+
+            var rating = 0;
+
+            // STAR RATING
+            $(".star-button").click(function () {
+
+                rating = Number($(this).data("rating"));
+
+                $("#Rating").val(rating);
+
+                $(".star-button").each(function () {
+
+                    var starValue = Number($(this).data("rating"));
+
+                    $(this).toggleClass(
+                        "selected",
+                        starValue <= rating
+                    );
+
+                    $(this).attr(
+                        "aria-pressed",
+                        starValue === rating ? "true" : "false"
+                    );
+                });
+
+                var messages = [
+                    "",
+                    "Very Poor",
+                    "Poor",
+                    "Average",
+                    "Good",
+                    "Excellent!"
+                ];
+
+                $("#ratingText").text(
+                    messages[rating] + " — " + rating + "/5"
+                );
+            });
+
+
+            // CHARACTER COUNTER
+            $("#Description").on("input", function () {
+
+                var length = $(this).val().length;
+
+                $("#characterCount").text(length);
+            });
+
+
+            // LOAD OUTLET LOCATIONS
+            $.ajax({
+                url: '@Url.Action("GetOutlets", "Customer")',
+                type: "GET",
+
+                success: function (outlets) {
+
+                    $("#Location").empty();
+
+                    $("#Location").append(
+                        '<option value="">-- Select Café Location --</option>'
+                    );
+
+                    $.each(outlets, function (index, outlet) {
+
+                        $("#Location").append(
+                            $("<option>")
+                                .val(outlet.outletName)
+                                .text(outlet.outletName)
+                        );
+
+                    });
+                },
+
+                error: function (xhr) {
+
+                    if (xhr.status === 401) {
+                        window.location.href =
+                            '@Url.Action("Login", "Customer")';
+                        return;
+                    }
+
+                    $("#Location").empty().append(
+                        '<option value="">Unable to load outlets</option>'
+                    );
+
+                    $("#feedbackMessage")
+                        .text("Could not load café locations.")
+                        .removeClass("success")
+                        .addClass("error");
+                }
+            });
+
+
+            // SUBMIT FEEDBACK
+            $("#feedbackForm").submit(function (e) {
+                e.preventDefault();
+
+                if (rating === 0) {
+                    $("#feedbackMessage")
+                        .text("Please select a star rating.")
+                        .removeClass("success")
+                        .addClass("error");
+
+                    return;
+                }
+
+                $("#submitFeedbackButton").prop("disabled", true);
+                $("#submitFeedbackButton").text("Submitting...");
+
+                $("#feedbackMessage").text("");
+
+                $.ajax({
+                    url: '@Url.Action("SubmitFeedback", "Customer")',
+                    type: "POST",
+                    data: $("#feedbackForm").serialize(),
+
+                    success: function (response) {
+
+                        if (response.success) {
+
+                            $("#feedbackMessage")
+                                .text(response.message)
+                                .removeClass("error")
+                                .addClass("success");
+
+                            $("#feedbackForm")[0].reset();
+
+                            // Reset the star rating
+                            rating = 0;
+                            $("#Rating").val(0);
+                            $(".star-button")
+                                .removeClass("selected")
+                                .attr("aria-pressed", "false");
+
+                            $("#ratingText").text("Select a star rating");
+                            $("#characterCount").text(0);
+
+                            // Prevent accidental duplicate submission
+                            $("#submitFeedbackButton").hide();
+                        }
+                    },
+
+                    error: function (xhr) {
+
+                        if (xhr.status === 401) {
+                            window.location.href =
+                                '@Url.Action("Login", "Customer")';
+                            return;
+                        }
+
+                        var message = xhr.responseJSON?.message
+                            || "Unable to submit feedback.";
+
+                        $("#feedbackMessage")
+                            .text(message)
+                            .removeClass("success")
+                            .addClass("error");
+                    },
+
+                    complete: function () {
+                        $("#submitFeedbackButton").prop("disabled", false);
+                        $("#submitFeedbackButton").text("Submit Feedback");
+                    }
+                });
+            });
+
+        });
+    </script>
+
+</body>
+</html>

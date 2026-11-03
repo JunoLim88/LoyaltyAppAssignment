@@ -1,0 +1,408 @@
+﻿
+@model LoyaltyAppAssignment.ViewModels.AssignPointViewModel
+
+@{
+    ViewData["Title"] = "Collect Points";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Collect Points | Brew & Bean</title>
+
+    <link rel="stylesheet"
+          href="~/css/customer.css"
+          asp-append-version="true" />
+</head>
+
+<body class="collect-page">
+
+    <!-- NAVBAR -->
+    <header class="customer-navbar">
+
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="navbar-brand">
+            ☕ BREW & BEAN
+        </a>
+
+        <nav>
+            <a asp-controller="Customer"
+               asp-action="Dashboard">Home</a>
+
+            <a asp-controller="Customer"
+               asp-action="Rewards">Rewards</a>
+
+            <a asp-controller="Customer"
+               asp-action="Vouchers">Vouchers</a>
+
+            <a asp-controller="Customer"
+               asp-action="CollectPoints"
+               class="active">Collect Points</a>
+
+            <a asp-controller="Customer"
+               asp-action="Profile">My Profile</a>
+        </nav>
+
+        <form asp-controller="Customer"
+              asp-action="Logout"
+              method="post">
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="navbar-logout">
+                Logout
+            </button>
+        </form>
+
+    </header>
+
+    <main class="collect-container">
+
+        <!-- PAGE TITLE -->
+        <section class="collect-heading">
+
+            <p class="form-subtitle">YOUR LOYALTY JOURNEY</p>
+
+            <h1>
+                Every sip<br />
+                <em>earns a little more.</em>
+            </h1>
+
+            <p>
+                Collect points from your café purchases
+                and get closer to your next reward.
+            </p>
+
+        </section>
+
+        <!-- BALANCE -->
+        <section class="collect-balance">
+
+            <div>
+                <p>YOUR CURRENT BALANCE</p>
+                <h2><span id="currentPoints">--</span> Points</h2>
+                <span>Good coffee deserves great rewards.</span>
+            </div>
+
+            <div class="collect-balance-icon">☕</div>
+
+        </section>
+
+        <!-- REQUEST POINTS -->
+        <section class="collect-form-card">
+
+            <div class="collect-section-heading">
+                <p class="form-subtitle">LET'S EARN SOME POINTS</p>
+
+                <h2>Request Loyalty Points</h2>
+
+                <p>
+                    Enter the points for your purchase.
+                    The API will generate a verification code
+                    for outlet staff to approve.
+                </p>
+            </div>
+
+            <div id="pointMessage" class="register-message"></div>
+
+            <form id="pointForm">
+                @Html.AntiForgeryToken()
+
+                <div class="input-group">
+                    <label for="Point">Points to Collect</label>
+
+                    <input asp-for="Point"
+                           type="number"
+                           min="1"
+                           max="1000"
+                           placeholder="e.g. 50"
+                           required />
+                </div>
+
+                <button type="submit"
+                        id="generatePointButton"
+                        class="login-btn">
+                    Generate Approval Code
+                </button>
+            </form>
+
+            <!-- GENERATED CODE -->
+            <div id="generatedCodeSection"
+                 class="generated-code-section"
+                 style="display:none;">
+
+                <p class="form-subtitle">
+                    YOUR APPROVAL CODE
+                </p>
+
+                <h2 id="generatedCode">------</h2>
+
+                <p>
+                    Show this code to the outlet staff.
+                    They must approve it using their staff PIN.
+                </p>
+
+                <div class="pending-points">
+                    Points requested:
+                    <strong id="requestedPoints">0</strong>
+                </div>
+
+                <p class="pending-notice">
+                    Awaiting staff approval.
+                    These points have not been credited yet.
+                </p>
+                
+<!-- STAFF APPROVAL FORM -->
+<div id="staffApprovalSection" class="staff-approval-section">
+
+    <p class="form-subtitle">STAFF VERIFICATION</p>
+
+    <h3>Approve Your Points</h3>
+
+    <p>
+        Select the café outlet and ask the staff
+        to enter their verification PIN.
+    </p>
+
+    <div id="approvalMessage" class="register-message"></div>
+
+    <form id="approvalForm">
+        @Html.AntiForgeryToken()
+
+        <!-- Generated approval code -->
+        <input type="hidden"
+               id="approvalCode"
+               name="Code" />
+                        <input type="hidden"
+                               id="approvalPoint"
+                               name="Point" />
+        <div class="input-group">
+            <label for="OutletGUID">Select Outlet</label>
+
+            <select id="OutletGUID"
+                    name="OutletGUID"
+                    required>
+                <option value="">Loading outlets...</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="StaffPin">Staff PIN</label>
+
+            <input type="password"
+                   id="StaffPin"
+                   name="Pin"
+                   placeholder="Staff enters PIN"
+                   autocomplete="off"
+                   required />
+        </div>
+
+        <button type="submit"
+                id="approvePointButton"
+                class="login-btn">
+            Approve Points
+        </button>
+    </form>
+
+</div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="dashboard-footer">
+        <span>☕ BREW & BEAN</span>
+        <p>Good coffee. Good moments. Better rewards.</p>
+        <small>© 2026 Brew & Bean</small>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+        $(function () {
+
+            // Load current points
+            $.ajax({
+                url: '@Url.Action("GetDashboardData", "Customer")',
+                type: "GET",
+
+                success: function (response) {
+                    $("#currentPoints").text(response.point);
+                },
+
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        window.location.href =
+                            '@Url.Action("Login", "Customer")';
+                    }
+                    else {
+                        $("#currentPoints").text("Unavailable");
+                    }
+                }
+            });
+
+
+            // Generate approval code
+            $("#pointForm").submit(function (e) {
+                e.preventDefault();
+
+                $("#generatePointButton").prop("disabled", true);
+                $("#generatePointButton").text("Generating...");
+
+                $("#pointMessage").text("");
+
+                $.ajax({
+                    url: '@Url.Action("AssignPoint", "Customer")',
+                    type: "POST",
+                    data: $("#pointForm").serialize(),
+
+                    success: function (response) {
+
+                        if (response.success) {
+
+                            $("#generatedCode").text(response.code);
+                            $("#requestedPoints").text(response.point);
+                                    $("#approvalPoint").val(response.point);
+                            $("#approvalCode").val(response.code);
+                            $("#generatedCodeSection").slideDown();
+
+                            $("#pointForm").hide();
+
+                            $("#pointMessage")
+                                .text("Approval code generated successfully!")
+                                .removeClass("error")
+                                .addClass("success");
+                        }
+                    },
+
+                    error: function (xhr) {
+
+                        if (xhr.status === 401) {
+                            window.location.href =
+                                '@Url.Action("Login", "Customer")';
+                            return;
+                        }
+
+                        var message = xhr.responseJSON?.message
+                            || "Unable to generate approval code.";
+
+                        $("#pointMessage")
+                            .text(message)
+                            .removeClass("success")
+                            .addClass("error");
+                    },
+
+                    complete: function () {
+                        $("#generatePointButton").prop("disabled", false);
+                        $("#generatePointButton").text("Generate Approval Code");
+                    }
+                });
+            });
+            
+    // LOAD OUTLETS
+    $.ajax({
+        url: '@Url.Action("GetOutlets", "Customer")',
+        type: "GET",
+
+        success: function (outlets) {
+
+            $("#OutletGUID").empty();
+
+            $("#OutletGUID").append(
+                '<option value="">-- Select an Outlet --</option>'
+            );
+
+            $.each(outlets, function (index, outlet) {
+
+                $("#OutletGUID").append(
+                    $("<option>")
+                        .val(outlet.outletGUID)
+                        .text(outlet.outletName)
+                );
+
+            });
+        },
+
+        error: function () {
+            $("#OutletGUID").empty().append(
+                '<option value="">Unable to load outlets</option>'
+            );
+        }
+    });
+    
+    // APPROVE POINTS
+    $("#approvalForm").submit(function (e) {
+        e.preventDefault();
+
+        $("#approvePointButton").prop("disabled", true);
+        $("#approvePointButton").text("Approving...");
+
+        $("#approvalMessage").text("");
+
+        $.ajax({
+            url: '@Url.Action("ApprovePoint", "Customer")',
+            type: "POST",
+            data: $("#approvalForm").serialize(),
+
+            success: function (response) {
+
+                if (response.success) {
+
+                    $("#approvalMessage")
+                        .text(response.message)
+                        .removeClass("error")
+                        .addClass("success");
+
+                    // Hide form after approval
+                    $("#approvalForm").hide();
+
+                    $(".pending-notice")
+                        .text("Your points have been approved!");
+
+                    // Refresh the point balance
+                    $.ajax({
+                        url: '@Url.Action("GetDashboardData", "Customer")',
+                        type: "GET",
+
+                        success: function (member) {
+                            $("#currentPoints").text(member.point);
+                        }
+                    });
+                }
+            },
+
+            error: function (xhr) {
+
+                if (xhr.status === 401) {
+                    window.location.href =
+                        '@Url.Action("Login", "Customer")';
+                    return;
+                }
+
+                var message = xhr.responseJSON?.message
+                    || "Unable to approve points.";
+
+                $("#approvalMessage")
+                    .text(message)
+                    .removeClass("success")
+                    .addClass("error");
+            },
+
+            complete: function () {
+                $("#approvePointButton").prop("disabled", false);
+                $("#approvePointButton").text("Approve Points");
+            }
+        });
+    });
+
+        });
+    </script>
+
+</body>
+</html>

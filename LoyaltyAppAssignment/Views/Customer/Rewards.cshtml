@@ -1,0 +1,387 @@
+﻿
+@{
+    ViewData["Title"] = "Rewards";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Rewards | Brew & Bean</title>
+
+    <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
+</head>
+
+<body class="rewards-page">
+
+    <!-- NAVIGATION -->
+    <header class="customer-navbar">
+
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="navbar-brand">
+            ☕ BREW & BEAN
+        </a>
+
+        <nav>
+            <a asp-controller="Customer"
+               asp-action="Dashboard">Home</a>
+
+            <a asp-controller="Customer"
+               asp-action="Rewards"
+               class="active">Rewards</a>
+
+            <a asp-controller="Customer"
+               asp-action="Profile">My Profile</a>
+        </nav>
+
+        <form asp-controller="Customer"
+              asp-action="Logout"
+              method="post">
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="navbar-logout">
+                Logout
+            </button>
+        </form>
+    </header>
+
+    <main class="rewards-container">
+
+        <!-- PAGE HEADER -->
+        <section class="rewards-heading">
+
+            <p class="form-subtitle">BREW & BEAN EXCLUSIVES</p>
+
+            <h1>The Rewards Collection.</h1>
+
+            <p>
+                A little something for every coffee lover.
+                Turn your loyalty points into special rewards.
+            </p>
+
+        </section>
+
+        <!-- MEMBER POINTS -->
+        <section class="rewards-points-banner">
+
+            <div>
+                <p>YOUR LOYALTY BALANCE</p>
+                <h2><span id="rewardPoints">--</span> Points</h2>
+                <span>Every cup brings you closer to a reward.</span>
+            </div>
+
+            <div class="rewards-points-icon">☕</div>
+
+        </section>
+
+        <!-- REWARDS LIST -->
+        <section class="rewards-catalogue">
+
+            <div class="rewards-catalogue-heading">
+                <div>
+                    <p class="form-subtitle">A LITTLE TREAT FOR YOU</p>
+                    <h2>Available Rewards</h2>
+                </div>
+            </div>
+
+            <div id="rewardsContainer" class="rewards-grid">
+                <p>Loading rewards...</p>
+            </div>
+
+        </section>
+
+        <!-- REWARD DETAILS -->
+        <section id="rewardDetails" class="reward-details" style="display:none;">
+
+            <p class="form-subtitle">YOUR SELECTED REWARD</p>
+
+            <h2 id="detailTitle"></h2>
+
+            <p id="detailSubtitle"></p>
+
+            <div class="reward-detail-points">
+                <span>POINTS REQUIRED</span>
+                <strong id="detailPoints"></strong>
+            </div>
+
+            <h3>Description</h3>
+            <p id="detailDescription"></p>
+
+            <h3>Terms & Conditions</h3>
+            <p id="detailTnC"></p>
+
+            
+<!-- REDEEM REWARD FORM -->
+<div class="redeem-section">
+
+    <p class="form-subtitle">READY TO REDEEM?</p>
+
+    <h3>Redeem This Reward</h3>
+
+    <p class="redeem-description">
+        Enter your password and ask the outlet staff
+        to enter their PIN to confirm your redemption.
+    </p>
+
+    <div id="redeemMessage" class="register-message"></div>
+
+    <form id="redeemForm">
+        @Html.AntiForgeryToken()
+
+        <!-- Selected reward -->
+        <input type="hidden"
+               id="selectedRewardGUID"
+               name="RewardGUID" />
+
+        <div class="input-group">
+            <label for="MemberPassword">
+                Your Account Password
+            </label>
+
+            <input type="password"
+                   id="MemberPassword"
+                   name="MemberPassword"
+                   placeholder="Enter your account password"
+                   autocomplete="off"
+                   required />
+        </div>
+
+        <div class="input-group">
+            <label for="OutletStaffPin">
+                Outlet Staff PIN
+            </label>
+
+            <input type="password"
+                   id="OutletStaffPin"
+                   name="OutletStaffPin"
+                   placeholder="Staff enters PIN here"
+                   autocomplete="off"
+                   required />
+        </div>
+
+        <button type="submit"
+                id="redeemButton"
+                class="login-btn">
+            Confirm Redemption
+        </button>
+
+    </form>
+</div>
+
+
+            <button type="button"
+                    id="closeDetails"
+                    class="reward-back-button">
+                Close Details
+            </button>
+
+        </section>
+
+    </main>
+
+    <footer class="dashboard-footer">
+        <span>☕ BREW & BEAN</span>
+        <p>Good coffee. Good moments. Better rewards.</p>
+        <small>© 2026 Brew & Bean</small>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+        $(function () {
+
+            // Load the member's points
+            $.ajax({
+                url: '@Url.Action("GetDashboardData", "Customer")',
+                type: "GET",
+
+                success: function (response) {
+                    $("#rewardPoints").text(response.point);
+                },
+
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        window.location.href =
+                            '@Url.Action("Login", "Customer")';
+                    }
+                    else {
+                        $("#rewardPoints").text("Unavailable");
+                    }
+                }
+            });
+
+
+            // Load rewards from our MVC controller
+            $.ajax({
+                url: '@Url.Action("GetRewards", "Customer")',
+                type: "GET",
+
+                success: function (rewards) {
+
+                    $("#rewardsContainer").empty();
+
+                    if (rewards.length === 0) {
+                        $("#rewardsContainer").html(
+                            '<div class="rewards-empty">' +
+                            '<div>☕</div>' +
+                            '<h3>No rewards available yet</h3>' +
+                            '<p>Something wonderful is brewing. Check back soon!</p>' +
+                            '</div>'
+                        );
+
+                        return;
+                    }
+
+                    $.each(rewards, function (index, reward) {
+
+                        var card = $("<div>").addClass("reward-card");
+
+                        var icon = $("<div>")
+                            .addClass("reward-card-icon")
+                            .text("🎁");
+
+                        var content = $("<div>")
+                            .addClass("reward-card-content");
+
+                        content.append(
+                            $("<p>").addClass("form-subtitle")
+                                .text(reward.subTitle || "MEMBER REWARD")
+                        );
+
+                        content.append(
+                            $("<h3>").text(reward.title)
+                        );
+
+                        content.append(
+                            $("<p>").addClass("reward-description")
+                                .text(reward.description || "Exclusive member reward.")
+                        );
+
+                        content.append(
+                            $("<div>").addClass("reward-price")
+                                .text(reward.point + " Points")
+                        );
+
+                        var button = $("<button>")
+                            .addClass("reward-view-button")
+                            .text("View Details");
+
+                        button.click(function () {
+
+                            $("#detailTitle").text(reward.title);
+                            $("#detailSubtitle").text(reward.subTitle || "");
+                            $("#detailPoints").text(reward.point + " Points");
+                            $("#detailDescription").text(reward.description || "No description available.");
+                            $("#detailTnC").text(reward.tnC || "No terms specified.");
+                            
+    // Remember which reward the customer selected
+    $("#selectedRewardGUID").val(reward.rewardGUID);
+
+    // Clear previous inputs and messages
+    $("#redeemForm")[0].reset();
+    $("#redeemMessage").text("");
+
+
+                            $("#rewardDetails").slideDown();
+
+                            document.getElementById("rewardDetails")
+                                .scrollIntoView({ behavior: "smooth" });
+                        });
+
+                        content.append(button);
+
+                        card.append(icon);
+                        card.append(content);
+
+                        $("#rewardsContainer").append(card);
+                    });
+                },
+
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        window.location.href =
+                            '@Url.Action("Login", "Customer")';
+                    }
+                    else {
+                        $("#rewardsContainer").text(
+                            "Unable to load rewards. Please try again."
+                        );
+                    }
+                }
+            });
+
+
+            // Close the details panel
+            $("#closeDetails").click(function () {
+                $("#rewardDetails").slideUp();
+            });
+            
+    // REDEEM REWARD
+    $("#redeemForm").submit(function (e) {
+        e.preventDefault();
+
+        $("#redeemButton").prop("disabled", true);
+        $("#redeemButton").text("Redeeming...");
+
+        $("#redeemMessage").text("");
+
+        $.ajax({
+            url: '@Url.Action("RedeemReward", "Customer")',
+            type: "POST",
+            data: $("#redeemForm").serialize(),
+
+            success: function (response) {
+                if (response.success) {
+
+                    $("#redeemMessage")
+                        .text(response.message)
+                        .removeClass("error")
+                        .addClass("success");
+
+                    $("#redeemForm")[0].reset();
+
+                    // Refresh the current point balance
+                    $.ajax({
+                        url: '@Url.Action("GetDashboardData", "Customer")',
+                        type: "GET",
+
+                        success: function (member) {
+                            $("#rewardPoints").text(member.point);
+                        }
+                    });
+                }
+            },
+
+            error: function (xhr) {
+                if (xhr.status === 401) {
+                    window.location.href =
+                        '@Url.Action("Login", "Customer")';
+
+                    return;
+                }
+
+                var message = xhr.responseJSON?.message
+                    || "Unable to redeem reward.";
+
+                $("#redeemMessage")
+                    .text(message)
+                    .removeClass("success")
+                    .addClass("error");
+            },
+
+            complete: function () {
+                $("#redeemButton").prop("disabled", false);
+                $("#redeemButton").text("Confirm Redemption");
+            }
+        });
+    });
+
+        });
+    </script>
+
+</body>
+</html>

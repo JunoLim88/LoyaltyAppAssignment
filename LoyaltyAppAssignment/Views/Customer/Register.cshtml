@@ -1,0 +1,207 @@
+﻿
+@model LoyaltyAppAssignment.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Create Account";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Join Brew & Bean</title>
+
+    <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
+</head>
+<body>
+
+    <div class="login-container">
+
+        <!-- Left Cafe Panel -->
+        <div class="login-left">
+
+            <div class="brand">
+                <span class="brand-icon">☕</span>
+                <span>BREW & BEAN</span>
+            </div>
+
+            <div class="welcome-text">
+                <p class="small-title">JOIN THE COFFEE CLUB</p>
+
+                <h1>
+                    Good coffee.<br />
+                    Great perks.<br />
+                    <em>Just for you.</em>
+                </h1>
+
+                <p class="description">
+                    Become part of our coffee-loving family.
+                    Collect points with every purchase,
+                    discover exclusive rewards, and enjoy
+                    a little more happiness in every cup.
+                </p>
+
+                <div class="coffee-decoration">
+                    <span>✦</span>
+                    SIP · EARN · REDEEM
+                    <span>✦</span>
+                </div>
+            </div>
+
+            <div class="left-footer">
+                EST. 2026 · BREWED FOR YOU
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="login-right register-right">
+
+            <div class="login-box register-box">
+
+                <p class="form-subtitle">BECOME A MEMBER</p>
+
+                <h2>Join our coffee club.</h2>
+
+                <p class="form-description">
+                    Create your account and start earning rewards.
+                </p>
+
+                <div id="registerMessage" class="register-message"></div>
+
+                <form id="registerForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group">
+                        <label for="Name">Full Name</label>
+                        <input asp-for="Name"
+                               placeholder="Enter your full name" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="PhoneNumber">Phone Number</label>
+                        <input asp-for="PhoneNumber"
+                               type="tel"
+                               placeholder="e.g. 0123456789" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Email">Email Address</label>
+                        <input asp-for="Email"
+                               type="email"
+                               placeholder="e.g. coffee@gmail.com" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Birthday">Date of Birth</label>
+                        <input asp-for="Birthday"
+                               type="date"
+                               value="" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Password">Password</label>
+                        <input asp-for="Password"
+                               type="password"
+                               placeholder="Create a password" />
+                    </div>
+
+                    <div class="input-group">
+                        <label for="ConfirmPassword">Confirm Password</label>
+                        <input asp-for="ConfirmPassword"
+                               type="password"
+                               placeholder="Confirm your password" />
+                    </div>
+
+                    <button type="submit"
+                            class="login-btn"
+                            id="registerButton">
+                        Create My Account
+                    </button>
+                </form>
+
+                <div class="divider">
+                    <span>ALREADY A MEMBER?</span>
+                </div>
+
+                <a asp-controller="Customer"
+                   asp-action="Login"
+                   class="register-btn">
+                    Back to Login
+                </a>
+
+                <p class="bottom-text">
+                    Your next coffee deserves a reward. ☕
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+        $(function () {
+
+            $("#registerForm").submit(function (e) {
+                e.preventDefault();
+
+                var password = $("#Password").val();
+                var confirmPassword = $("#ConfirmPassword").val();
+
+                if (password !== confirmPassword) {
+                    $("#registerMessage")
+                        .text("Passwords do not match.")
+                        .removeClass("success")
+                        .addClass("error");
+
+                    return;
+                }
+
+                $("#registerButton").prop("disabled", true);
+                $("#registerButton").text("Creating account...");
+                $("#registerMessage").text("");
+
+                $.ajax({
+                    url: '@Url.Action("Register", "Customer")',
+                    type: "POST",
+                    data: $("#registerForm").serialize(),
+
+                    success: function (response) {
+                        $("#registerMessage")
+                            .text(response.message)
+                            .removeClass("error")
+                            .addClass("success");
+
+                        $("#registerForm")[0].reset();
+
+                        setTimeout(function () {
+                            window.location.href =
+                                '@Url.Action("Login", "Customer")';
+                        }, 1500);
+                    },
+
+                    error: function (xhr) {
+                        var message = xhr.responseJSON?.message
+                            || "Registration failed.";
+
+                        $("#registerMessage")
+                            .text(message)
+                            .removeClass("success")
+                            .addClass("error");
+                    },
+
+                    complete: function () {
+                        $("#registerButton").prop("disabled", false);
+                        $("#registerButton").text("Create My Account");
+                    }
+                });
+            });
+
+        });
+    </script>
+
+</body>
+</html>

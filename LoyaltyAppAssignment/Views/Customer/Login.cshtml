@@ -1,0 +1,170 @@
+﻿@model LoyaltyAppAssignment.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Customer Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Login | Brew & Bean</title>
+
+    <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
+</head>
+
+<body>
+    <div class="login-container">
+
+        <!-- Left Side -->
+        <div class="login-left">
+
+            <div class="brand">
+                <span class="brand-icon">☕</span>
+                <span>BREW & BEAN</span>
+            </div>
+
+            <div class="welcome-text">
+                <p class="small-title">YOUR DAILY COFFEE RITUAL</p>
+
+                <h1>
+                    Every cup<br />
+                    deserves a<br />
+                    <em>little reward.</em>
+                </h1>
+
+                <p class="description">
+                    Great coffee. Better moments.
+                    Earn points with every visit and
+                    enjoy exclusive member rewards.
+                </p>
+
+                <div class="coffee-decoration">
+                    <span>✦</span>
+                    MADE WITH LOVE
+                    <span>✦</span>
+                </div>
+            </div>
+
+            <div class="left-footer">
+                EST. 2026 · BREWED FOR YOU
+            </div>
+
+        </div>
+
+        <!-- Right Side -->
+        <div class="login-right">
+
+            <div class="login-box">
+
+                <p class="form-subtitle">MEMBER LOGIN</p>
+
+                <h2>Welcome back!</h2>
+
+                <p class="form-description">
+                    Sign in to continue your coffee journey.
+                </p>
+
+                <form id="loginForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group">
+                        <label for="PhoneNumber">Phone Number</label>
+
+                        <input asp-for="PhoneNumber"
+                               type="tel"
+                               placeholder="e.g. 0123456789" />
+
+                        <span asp-validation-for="PhoneNumber"
+                              class="error-text"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Password">Password</label>
+
+                        <input asp-for="Password"
+                               type="password"
+                               placeholder="Enter your password" />
+
+                        <span asp-validation-for="Password"
+                              class="error-text"></span>
+                    </div>
+
+                    <div class="forgot-password">
+                        <a asp-controller="Customer"
+                           asp-action="ForgotPassword">
+                            Forgot Password?
+                        </a>
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        Sign In
+                    </button>
+
+                </form>
+
+                <div class="divider">
+                    <span>NEW HERE?</span>
+                </div>
+
+                <a asp-controller="Customer"
+                   asp-action="Register"
+                   class="register-btn">
+                    Create an Account
+                </a>
+
+                <p class="bottom-text">
+                    Good coffee tastes better with rewards. ☕
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+                    $(function () {
+
+                $("#loginForm").submit(function (e) {
+                    e.preventDefault();
+
+                    var button = $(".login-btn");
+                    button.prop("disabled", true);
+                    button.text("Signing in...");
+
+                    $.ajax({
+                        url: '@Url.Action("Login", "Customer")',
+                        type: "POST",
+                        data: $("#loginForm").serialize(),
+
+                        success: function (response) {
+                            if (response.success) {
+                                window.location.href =
+                                    '@Url.Action("Dashboard", "Customer")';
+                            }
+                            else {
+                                alert(response.message);
+                            }
+                        },
+
+                        error: function () {
+                            alert("Something went wrong. Please try again.");
+                        },
+
+                        complete: function () {
+                            button.prop("disabled", false);
+                            button.text("Sign In");
+                        }
+                    });
+                });
+
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+﻿
+@{
+    ViewData["Title"] = "Transaction History";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>History | Brew & Bean</title>
+    <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
+</head>
+
+<body class="history-page">
+
+    <header class="customer-navbar">
+
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="navbar-brand">
+            ☕ BREW & BEAN
+        </a>
+
+        <nav>
+            <a asp-controller="Customer" asp-action="Dashboard">Home</a>
+            <a asp-controller="Customer" asp-action="Rewards">Rewards</a>
+            <a asp-controller="Customer" asp-action="Vouchers">Vouchers</a>
+            <a asp-controller="Customer" asp-action="CollectPoints">Collect Points</a>
+            <a asp-controller="Customer" asp-action="History" class="active">History</a>
+            <a asp-controller="Customer" asp-action="Profile">My Profile</a>
+        </nav>
+
+        <form asp-controller="Customer" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="navbar-logout">Logout</button>
+        </form>
+    </header>
+
+    <main class="history-container">
+
+        <section class="history-heading">
+            <p class="form-subtitle">EVERY CUP HAS A STORY</p>
+            <h1>Your Coffee Journey.</h1>
+            <p>
+                Keep track of your loyalty points,
+                redeemed rewards, and special café vouchers.
+            </p>
+        </section>
+
+        <section class="history-banner">
+            <div>
+                <p class="form-subtitle">YOUR MEMBERSHIP ACTIVITY</p>
+                <h2>Every moment <em>counts.</em></h2>
+                <p>See the little rewards you've collected along the way.</p>
+            </div>
+            <div class="history-banner-icon">📜</div>
+        </section>
+
+        <section class="history-records">
+
+            <div class="history-section-heading">
+                <p class="form-subtitle">YOUR ACTIVITY</p>
+                <h2>Transaction History</h2>
+            </div>
+
+            <div class="history-tabs">
+                <button type="button" class="history-tab active" data-type="all">
+                    All Activity
+                </button>
+                <button type="button" class="history-tab" data-type="points">
+                    Points
+                </button>
+                <button type="button" class="history-tab" data-type="rewards">
+                    Rewards
+                </button>
+                <button type="button" class="history-tab" data-type="vouchers">
+                    Vouchers
+                </button>
+            </div>
+
+            <div id="historyContainer" class="history-list">
+                <p>Loading transaction history...</p>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="dashboard-footer">
+        <span>☕ BREW & BEAN</span>
+        <p>Good coffee. Good moments. Better rewards.</p>
+        <small>© 2026 Brew & Bean</small>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+        $(function () {
+
+            var allHistory = [];
+
+            // Load history
+            $.ajax({
+                url: '@Url.Action("GetHistory", "Customer")',
+                type: "GET",
+
+                success: function (response) {
+                    allHistory = response;
+                    showHistory("all");
+                },
+
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        window.location.href =
+                            '@Url.Action("Login", "Customer")';
+                    }
+                    else {
+                        $("#historyContainer").text(
+                            "Unable to load transaction history."
+                        );
+                    }
+                }
+            });
+
+            // Display history
+            function showHistory(type) {
+
+                $("#historyContainer").empty();
+
+                var records = allHistory.filter(function (item) {
+
+                    if (type === "all") return true;
+                    if (type === "vouchers") return item.recordType === 0;
+                    if (type === "rewards") return item.recordType === 1;
+                    if (type === "points") return item.recordType === 2;
+
+                    return false;
+                });
+
+                records.sort(function (a, b) {
+                    return new Date(b.date) - new Date(a.date);
+                });
+
+                if (records.length === 0) {
+                    $("#historyContainer").html(
+                        '<div class="history-empty">' +
+                        '<div>☕</div>' +
+                        '<h3>No transactions found</h3>' +
+                        '<p>Your membership adventures will appear here.</p>' +
+                        '</div>'
+                    );
+                    return;
+                }
+
+                $.each(records, function (index, item) {
+
+                    var title = "Transaction";
+                    var icon = "📋";
+                    var category = "Activity";
+                    var details = item.description || "";
+
+                    if (item.recordType === 0) {
+                        icon = "🎟️";
+                        category = "Voucher";
+
+                        title = item.voucherDetail?.voucherName
+                            || item.voucherDetail?.title
+                            || "Voucher Redemption";
+                    }
+                    else if (item.recordType === 1) {
+                        icon = "🎁";
+                        category = "Reward";
+
+                        title = item.rewardDetail?.title
+                            || item.rewardDetail?.name
+                            || "Reward Redemption";
+                    }
+                    else if (item.recordType === 2) {
+                        icon = "⭐";
+                        category = "Points";
+                        title = "Loyalty Points";
+
+                        if (item.points != null) {
+                            details = item.points + " points";
+                        }
+                    }
+
+                    var card = $("<div>").addClass("history-item");
+
+                    var iconBox = $("<div>")
+                        .addClass("history-icon")
+                        .text(icon);
+
+                    var content = $("<div>")
+                        .addClass("history-item-content");
+
+                    content.append(
+                        $("<span>").addClass("history-category")
+                            .text(category)
+                    );
+
+                    content.append($("<h3>").text(title));
+
+                    content.append($("<p>").text(details));
+
+                    var dateText = item.date
+                        ? new Date(item.date).toLocaleString()
+                        : "Date unavailable";
+
+                    content.append(
+                        $("<small>").text(dateText)
+                    );
+
+                    var status = $("<span>")
+                        .addClass("history-status")
+                        .text(item.status || "Unknown");
+
+                    card.append(iconBox);
+                    card.append(content);
+                    card.append(status);
+
+                    $("#historyContainer").append(card);
+                });
+            }
+
+            // Switch tabs
+            $(".history-tab").click(function () {
+
+                $(".history-tab").removeClass("active");
+                $(this).addClass("active");
+
+                showHistory($(this).data("type"));
+            });
+
+        });
+    </script>
+
+</body>
+</html>

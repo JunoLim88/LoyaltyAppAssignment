@@ -1,0 +1,305 @@
+﻿
+@{
+    ViewData["Title"] = "Our Outlets";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Our Outlets | Brew & Bean</title>
+
+    <link rel="stylesheet"
+          href="~/css/customer.css"
+          asp-append-version="true" />
+</head>
+
+<body class="outlets-page">
+
+    <!-- NAVIGATION -->
+    <header class="customer-navbar">
+
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="navbar-brand">
+            ☕ BREW & BEAN
+        </a>
+
+        <nav>
+            <a asp-controller="Customer" asp-action="Dashboard">Home</a>
+            <a asp-controller="Customer" asp-action="Rewards">Rewards</a>
+            <a asp-controller="Customer" asp-action="Vouchers">Vouchers</a>
+            <a asp-controller="Customer" asp-action="CollectPoints">Collect Points</a>
+            <a asp-controller="Customer" asp-action="History">History</a>
+            <a asp-controller="Customer" asp-action="Outlets" class="active">Outlets</a>
+            <a asp-controller="Customer" asp-action="Profile">My Profile</a>
+        </nav>
+
+        <form asp-controller="Customer"
+              asp-action="Logout"
+              method="post">
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="navbar-logout">
+                Logout
+            </button>
+        </form>
+    </header>
+
+    <main class="outlets-container">
+
+        <!-- PAGE HEADING -->
+        <section class="outlets-heading">
+
+            <p class="form-subtitle">YOUR NEXT COFFEE DESTINATION</p>
+
+            <h1>
+                Find Your<br />
+                <em>Coffee Spot.</em>
+            </h1>
+
+            <p>
+                Discover our café outlets and the wonderful
+                people behind your favorite coffee moments.
+            </p>
+
+        </section>
+
+        <!-- FEATURED BANNER -->
+        <section class="outlets-banner">
+
+            <div>
+                <p class="form-subtitle">BREWED WITH LOVE</p>
+
+                <h2>
+                    A warm cup.<br />
+                    <em>Wherever you go.</em>
+                </h2>
+
+                <p>
+                    Explore our locations and find the perfect
+                    place for your next coffee break.
+                </p>
+            </div>
+
+            <div class="outlets-banner-icon">☕</div>
+
+        </section>
+
+        <!-- OUTLET LIST -->
+        <section class="outlets-list-section">
+
+            <div class="outlets-list-heading">
+                <p class="form-subtitle">EXPLORE OUR LOCATIONS</p>
+                <h2>Our Café Branches</h2>
+                <p>Find your favorite Brew & Bean location.</p>
+            </div>
+
+            <div id="outletsContainer" class="outlets-grid">
+                <p>Loading café outlets...</p>
+            </div>
+
+        </section>
+
+        <!-- STAFF DETAILS -->
+        <section id="outletStaffSection"
+                 class="outlet-staff-section"
+                 style="display:none;">
+
+            <p class="form-subtitle">THE PEOPLE BEHIND THE COFFEE</p>
+
+            <h2>
+                Meet Our Team at
+                <span id="selectedOutletName"></span>
+            </h2>
+
+            <p class="staff-description">
+                Meet the staff members associated with this café.
+            </p>
+
+            <div id="outletStaffContainer" class="staff-grid">
+            </div>
+
+            <button type="button"
+                    id="closeOutletStaff"
+                    class="reward-back-button">
+                Close Details
+            </button>
+
+        </section>
+
+    </main>
+
+    <footer class="dashboard-footer">
+        <span>☕ BREW & BEAN</span>
+        <p>Good coffee. Good moments. Better rewards.</p>
+        <small>© 2026 Brew & Bean</small>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+        $(function () {
+
+            // LOAD CAFÉ OUTLETS
+            $.ajax({
+                url: '@Url.Action("GetOutlets", "Customer")',
+                type: "GET",
+
+                success: function (outlets) {
+
+                    $("#outletsContainer").empty();
+
+                    if (outlets.length === 0) {
+                        $("#outletsContainer").html(
+                            '<div class="outlets-empty">' +
+                            '<h3>No outlets available yet</h3>' +
+                            '<p>Check back soon for café locations.</p>' +
+                            '</div>'
+                        );
+                        return;
+                    }
+
+                    $.each(outlets, function (index, outlet) {
+
+                        var card = $("<div>")
+                            .addClass("outlet-card");
+
+                        var picture = $("<div>")
+                            .addClass("outlet-card-picture")
+                            .text("☕");
+
+                        var content = $("<div>")
+                            .addClass("outlet-card-content");
+
+                        content.append(
+                            $("<p>").addClass("form-subtitle")
+                                .text("BREW & BEAN BRANCH")
+                        );
+
+                        content.append(
+                            $("<h3>").text(outlet.outletName)
+                        );
+
+                        content.append(
+                            $("<p>").addClass("outlet-description")
+                                .text("Discover the team behind this café location.")
+                        );
+
+                        var button = $("<button>")
+                            .addClass("reward-view-button")
+                            .text("View Outlet Staff");
+
+                        button.click(function () {
+                            loadOutletStaff(
+                                outlet.outletGUID,
+                                outlet.outletName
+                            );
+                        });
+
+                        content.append(button);
+
+                        card.append(picture);
+                        card.append(content);
+
+                        $("#outletsContainer").append(card);
+                    });
+                },
+
+                error: function (xhr) {
+                    if (xhr.status === 401) {
+                        window.location.href =
+                            '@Url.Action("Login", "Customer")';
+                    }
+                    else {
+                        $("#outletsContainer").text(
+                            "Unable to load café outlets."
+                        );
+                    }
+                }
+            });
+
+
+            // LOAD STAFF FOR SELECTED OUTLET
+            function loadOutletStaff(outletGUID, outletName) {
+
+                $("#selectedOutletName").text(outletName);
+
+                $("#outletStaffSection").show();
+
+                $("#outletStaffContainer").text(
+                    "Loading outlet staff..."
+                );
+
+                $.ajax({
+                    url: '@Url.Action("GetOutletStaff", "Customer")',
+                    type: "GET",
+                    data: {
+                        outletGUID: outletGUID
+                    },
+
+                    success: function (staffList) {
+
+                        $("#outletStaffContainer").empty();
+
+                        if (staffList.length === 0) {
+                            $("#outletStaffContainer").text(
+                                "No staff information available for this outlet."
+                            );
+                            return;
+                        }
+
+                        $.each(staffList, function (index, staff) {
+
+                            var card = $("<div>")
+                                .addClass("staff-card");
+
+                            var avatar = $("<div>")
+                                .addClass("staff-avatar")
+                                .text("👤");
+
+                            card.append(avatar);
+
+                            card.append(
+                                $("<h3>").text(staff.outletStaffName)
+                            );
+
+                            card.append(
+                                $("<p>").text(staff.role || "Café Staff")
+                            );
+
+                            $("#outletStaffContainer").append(card);
+                        });
+                    },
+
+                    error: function (xhr) {
+                        if (xhr.status === 401) {
+                            window.location.href =
+                                '@Url.Action("Login", "Customer")';
+                        }
+                        else {
+                            $("#outletStaffContainer").text(
+                                "Unable to load outlet staff."
+                            );
+                        }
+                    }
+                });
+
+                document.getElementById("outletStaffSection")
+                    .scrollIntoView({ behavior: "smooth" });
+            }
+
+
+            // CLOSE STAFF DETAILS
+            $("#closeOutletStaff").click(function () {
+                $("#outletStaffSection").slideUp();
+            });
+
+        });
+    </script>
+
+</body>
+</html>

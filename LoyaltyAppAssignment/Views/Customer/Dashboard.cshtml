@@ -1,0 +1,362 @@
+﻿@{
+    ViewData["Title"] = "Home";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Home | Brew & Bean</title>
+
+    <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
+</head>
+
+<body class="dashboard-page">
+
+    <!-- NAVIGATION -->
+    <header class="customer-navbar">
+
+        <a asp-controller="Customer"
+           asp-action="Dashboard"
+           class="navbar-brand">
+            ☕ BREW & BEAN
+        </a>
+
+        <nav>
+            <a asp-controller="Customer"
+               asp-action="Dashboard"
+               class="active">Home</a>
+
+            <a asp-controller="Customer"
+               asp-action="Profile">My Profile</a>
+        </nav>
+
+        <form asp-controller="Customer"
+              asp-action="Logout"
+              method="post">
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="navbar-logout">
+                Logout
+            </button>
+        </form>
+
+    </header>
+
+    <main class="dashboard-container">
+
+        <!-- WELCOME -->
+        <section class="dashboard-welcome">
+
+            <div>
+                <p class="form-subtitle">BREWED ESPECIALLY FOR YOU</p>
+
+                <h1>
+                    Good to see you,<br />
+                    <em id="memberName">Coffee Lover</em>
+                </h1>
+
+                <p>
+                    Every visit brings a little more joy.
+                    Let's see what you've earned today.
+                </p>
+            </div>
+
+            <div class="welcome-coffee">☕</div>
+
+        </section>
+
+        <!-- POINTS CARD -->
+        <section class="dashboard-points">
+
+            <div>
+                <p class="points-label">YOUR AVAILABLE POINTS</p>
+
+                <h2 id="memberPoints">--</h2>
+
+                <p class="points-description">
+                    Your next reward is just a few sips away.
+                </p>
+            </div>
+
+            <div class="points-side">
+                <div>
+                    <small>MEMBERSHIP TIER</small>
+                    <strong id="memberTier">Member</strong>
+                </div>
+
+                <div>
+                    <small>REFERRAL CODE</small>
+                    <strong id="memberReferral">--</strong>
+                </div>
+            </div>
+
+        </section>
+
+        <p id="dashboardMessage"
+           class="dashboard-error"
+           role="status"
+           aria-live="polite">
+            Loading your membership information...
+        </p>
+
+        
+        <!-- PROMOTIONAL HIGHLIGHTS -->
+        <section class="highlights-section">
+
+            <div class="features-heading">
+                <div>
+                    <p class="form-subtitle">SPECIAL OFFERS</p>
+                    <h2>What's brewing?</h2>
+                </div>
+
+                <p>Discover our latest café promotions.</p>
+            </div>
+
+            <div id="highlightsContainer" class="highlights-grid">
+                <p>Loading promotions...</p>
+            </div>
+
+        </section>
+
+
+        <!-- QUICK ACCESS -->
+        <section class="dashboard-features">
+
+            <div class="features-heading">
+                <div>
+                    <p class="form-subtitle">EXPLORE YOUR MEMBERSHIP</p>
+                    <h2>Made for coffee lovers.</h2>
+                </div>
+
+                <p>
+                    Everything you need for a rewarding café experience.
+                </p>
+            </div>
+
+            <div class="feature-grid">
+
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎁</div>
+
+                    <h3>Rewards</h3>
+
+                    <p>
+                        Turn your hard-earned points into something special.
+                    </p>
+
+                    <a asp-controller="Customer"
+                       asp-action="Rewards"
+                       class="feature-link">
+                        Explore Rewards →
+                    </a>
+                </div>
+
+
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎟️</div>
+
+                    <h3>Vouchers</h3>
+
+                    <p>
+                        Discover exclusive deals and member benefits.
+                    </p>
+
+                    <a asp-controller="Customer"
+                       asp-action="Vouchers"
+                       class="feature-link">
+                        Explore Vouchers →
+                    </a>
+                </div>
+
+
+                
+<div class="feature-card">
+    <div class="feature-icon">📍</div>
+
+    <h3>Our Outlets</h3>
+
+    <p>
+        Find your next favorite place for a perfect cup.
+    </p>
+
+    <a asp-controller="Customer"
+       asp-action="Outlets"
+       class="feature-link">
+        Explore Outlets →
+    </a>
+</div>
+
+
+                
+<div class="feature-card">
+    <div class="feature-icon">📜</div>
+
+    <h3>My History</h3>
+
+    <p>
+        Look back at your points, rewards, and voucher activity.
+    </p>
+
+    <a asp-controller="Customer"
+       asp-action="History"
+       class="feature-link">
+        View History →
+    </a>
+</div>
+
+
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+
+                    <h3>Collect Points</h3>
+
+                    <p>
+                        Earn loyalty points from your café purchases.
+                    </p>
+
+                    <a asp-controller="Customer"
+                       asp-action="CollectPoints"
+                       class="feature-link">
+                        Collect Points →
+                    </a>
+                </div>
+                
+<div class="feature-card">
+    <div class="feature-icon">💬</div>
+
+    <h3>Feedback</h3>
+
+    <p>
+        Share your café experience and help us improve.
+    </p>
+
+    <a asp-controller="Customer"
+       asp-action="Feedback"
+       class="feature-link">
+        Share Feedback →
+    </a>
+</div>
+
+            </div>
+
+        </section>
+
+        <!-- PROFILE SHORTCUT -->
+        <section class="dashboard-profile-link">
+            <div>
+                <h2>Your coffee journey, your way.</h2>
+                <p>Manage your account and personal information.</p>
+            </div>
+
+            <a asp-controller="Customer"
+               asp-action="Profile"
+               class="dashboard-profile-btn">
+                View My Profile
+            </a>
+        </section>
+
+    </main>
+
+    <footer class="dashboard-footer">
+        <span>☕ BREW & BEAN</span>
+        <p>Good coffee. Good moments. Better rewards.</p>
+        <small>© 2026 Brew & Bean</small>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script>
+            $(function () {
+
+                $.ajax({
+                    url: '@Url.Action("GetDashboardData", "Customer")',
+                    type: "GET",
+
+                    success: function (response) {
+                        $("#memberName").text(response.name || "Coffee Lover");
+                        $("#memberPoints").text(response.point);
+                        $("#memberTier").text(response.tier || "Member");
+                        $("#memberReferral").text(response.referralCode || "--");
+
+                        $("#dashboardMessage").hide();
+                    },
+
+                    error: function (xhr) {
+                        if (xhr.status === 401) {
+                            window.location.href =
+                                '@Url.Action("Login", "Customer")';
+                        }
+                        else {
+                            $("#dashboardMessage").text(
+                                xhr.responseJSON?.message ||
+                                "Unable to load membership information."
+                            );
+                        }
+                    }
+                        });
+
+            // Load promotional highlights
+            $.ajax({
+                url: '@Url.Action("GetHighlights", "Customer")',
+                type: "GET",
+
+                success: function (highlights) {
+
+                    $("#highlightsContainer").empty();
+
+                    if (highlights.length === 0) {
+                        $("#highlightsContainer").html(
+                            '<div class="no-highlights">' +
+                            '<span>☕</span>' +
+                            '<h3>Something delicious is brewing!</h3>' +
+                            '<p>Check back soon for exclusive café promotions.</p>' +
+                            '</div>'
+                        );
+
+                        return;
+                    }
+
+                    $.each(highlights, function (index, item) {
+
+                        var card = $("<div>").addClass("highlight-card");
+
+                        var content = $("<div>").addClass("highlight-content");
+
+                        content.append(
+                            $("<p>").addClass("form-subtitle")
+                                .text(item.subTitle || "SPECIAL OFFER")
+                        );
+
+                        content.append(
+                            $("<h3>").text(item.title)
+                        );
+
+                        content.append(
+                            $("<p>").text(item.description)
+                        );
+
+                        card.append(content);
+
+                        $("#highlightsContainer").append(card);
+                    });
+                },
+
+                error: function () {
+                    $("#highlightsContainer").html(
+                        '<p>Unable to load promotions.</p>'
+                    );
+                }
+            });
+
+
+            });
+    </script>
+
+</body>
+</html>

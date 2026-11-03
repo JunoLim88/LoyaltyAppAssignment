@@ -1,0 +1,403 @@
+﻿
+@model LoyaltyAppAssignment.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>My Profile | Brew & Bean</title>
+
+    <link rel="stylesheet" href="~/css/customer.css" asp-append-version="true" />
+</head>
+<body class="profile-page">
+
+    <header class="customer-navbar">
+        <a asp-controller="Customer" asp-action="Dashboard" class="navbar-brand">
+            ☕ BREW & BEAN
+        </a>
+
+        <nav>
+            <a asp-controller="Customer" asp-action="Dashboard">Home</a>
+            <a asp-controller="Customer" asp-action="Profile" class="active">My Profile</a>
+        </nav>
+
+        <form asp-controller="Customer" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="navbar-logout">Logout</button>
+        </form>
+    </header>
+
+    <main class="profile-container">
+
+        <div class="profile-heading">
+            <p class="form-subtitle">YOUR COFFEE JOURNEY</p>
+            <h1>My Profile</h1>
+            <p>Manage your membership and enjoy your rewards.</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="profile-error">@ViewBag.Error</div>
+        }
+        else
+        {
+            <section class="member-card">
+                <div class="member-card-top">
+                    <span>BREW & BEAN</span>
+                    <span>☕ MEMBERSHIP</span>
+                </div>
+
+                <div class="member-card-content">
+                    <p>MEMBER NAME</p>
+                    <h2>@Model.Name</h2>
+
+                    <span class="member-tier">@Model.Tier MEMBER</span>
+                </div>
+
+                <div class="member-card-bottom">
+                    <div>
+                        <small>YOUR POINTS</small>
+                        <strong>@Model.Point</strong>
+                    </div>
+
+                    <div>
+                        <small>REFERRAL CODE</small>
+                        <strong>@Model.ReferralCode</strong>
+                    </div>
+                </div>
+            </section>
+
+            
+<section class="profile-edit-section">
+
+    <div class="edit-heading">
+        <div>
+            <p class="form-subtitle">PERSONAL SETTINGS</p>
+            <h2>Edit Profile</h2>
+            <p>Keep your membership information up to date.</p>
+        </div>
+
+        <button type="button"
+                id="editToggle"
+                class="edit-toggle-btn">
+            Edit Details
+        </button>
+    </div>
+
+    <div id="editFormContainer" style="display:none;">
+
+        <div id="editMessage" class="register-message"></div>
+
+        <form id="editProfileForm">
+            @Html.AntiForgeryToken()
+
+            <div class="input-group">
+                <label for="EditName">Full Name</label>
+
+                <input type="text"
+                       id="EditName"
+                       name="Name"
+                       value="@Model.Name"
+                       required />
+            </div>
+
+            <div class="input-group">
+                <label for="EditEmail">Email Address</label>
+
+                <input type="email"
+                       id="EditEmail"
+                       name="Email"
+                       value="@Model.Email"
+                       required />
+            </div>
+
+            <div class="edit-buttons">
+                <button type="submit"
+                        id="saveProfileButton"
+                        class="login-btn">
+                    Save Changes
+                </button>
+
+                <button type="button"
+                        id="cancelEdit"
+                        class="cancel-edit-btn">
+                    Cancel
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</section>
+
+
+            <section class="profile-details">
+                <div class="details-heading">
+                    <div>
+                        <p class="form-subtitle">ACCOUNT INFORMATION</p>
+                        <h2>Personal Details</h2>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+                        <label>Full Name</label>
+                        <p>@Model.Name</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Email Address</label>
+                        <p>@Model.Email</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Phone Number</label>
+                        <p>@Model.PhoneNumber</p>
+                    </div>
+
+                    <div class="detail-item">
+    <label>Account Status</label>
+
+    <p>
+        @if (Model.AccountStatus == 1)
+        {
+            <span>Active</span>
+        }
+        else
+        {
+            <span>Inactive</span>
+        }
+    </p>
+</div>
+
+                    <div class="detail-item">
+                        <label>Membership Tier</label>
+                        <p>@Model.Tier</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Referral Code</label>
+                        <p>@Model.ReferralCode</p>
+                    </div>
+
+                </div>
+            </section>
+        }
+        
+<!-- CHANGE PASSWORD SECTION -->
+<section class="profile-edit-section password-section">
+
+    <div class="edit-heading">
+        <div>
+            <p class="form-subtitle">ACCOUNT SECURITY</p>
+            <h2>Change Password</h2>
+
+            <p>
+                Keep your membership account safe and secure.
+            </p>
+        </div>
+
+        <button type="button"
+                id="passwordToggle"
+                class="edit-toggle-btn">
+            Change Password
+        </button>
+    </div>
+
+    <div id="passwordFormContainer" style="display:none;">
+
+        <div id="passwordMessage" class="register-message"></div>
+
+        <form id="changePasswordForm">
+            @Html.AntiForgeryToken()
+
+            <div class="input-group">
+                <label for="OldPassword">Current Password</label>
+
+                <input type="password"
+                       id="OldPassword"
+                       name="OldPassword"
+                       placeholder="Enter your current password"
+                       autocomplete="current-password"
+                       required />
+            </div>
+
+            <div class="input-group">
+                <label for="NewPassword">New Password</label>
+
+                <input type="password"
+                       id="NewPassword"
+                       name="NewPassword"
+                       placeholder="Enter your new password"
+                       autocomplete="new-password"
+                       minlength="6"
+                       required />
+            </div>
+
+            <div class="input-group">
+                <label for="ConfirmNewPassword">
+                    Confirm New Password
+                </label>
+
+                <input type="password"
+                       id="ConfirmNewPassword"
+                       name="ConfirmPassword"
+                       placeholder="Confirm your new password"
+                       autocomplete="new-password"
+                       required />
+            </div>
+
+            <div class="edit-buttons">
+
+                <button type="submit"
+                        id="changePasswordButton"
+                        class="login-btn">
+                    Save New Password
+                </button>
+
+                <button type="button"
+                        id="cancelPassword"
+                        class="cancel-edit-btn">
+                    Cancel
+                </button>
+
+            </div>
+        </form>
+    </div>
+
+</section>
+
+        <div class="profile-footer">
+            <p>Every cup brings you closer to something wonderful. ☕</p>
+        </div>
+
+    </main>
+    
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(function () {
+
+        $("#editToggle").click(function () {
+            $("#editFormContainer").slideToggle();
+        });
+
+        $("#cancelEdit").click(function () {
+            $("#editFormContainer").slideUp();
+        });
+
+        $("#editProfileForm").submit(function (e) {
+            e.preventDefault();
+
+            $("#saveProfileButton").prop("disabled", true);
+            $("#saveProfileButton").text("Saving...");
+
+            $.ajax({
+                url: '@Url.Action("EditProfile", "Customer")',
+                type: "POST",
+                data: $("#editProfileForm").serialize(),
+
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+
+                        // Refresh to display the updated information
+                        location.reload();
+                    }
+                },
+
+                error: function (xhr) {
+                    var message = xhr.responseJSON?.message
+                        || "Unable to update profile.";
+
+                    $("#editMessage")
+                        .text(message)
+                        .removeClass("success")
+                        .addClass("error");
+                },
+
+                complete: function () {
+                    $("#saveProfileButton").prop("disabled", false);
+                    $("#saveProfileButton").text("Save Changes");
+                }
+            });
+        });
+        
+    // Show / Hide Change Password form
+    $("#passwordToggle").click(function () {
+        $("#passwordFormContainer").slideToggle();
+    });
+
+    $("#cancelPassword").click(function () {
+        $("#passwordFormContainer").slideUp();
+        $("#changePasswordForm")[0].reset();
+        $("#passwordMessage").text("");
+    });
+
+    // Submit Change Password
+    $("#changePasswordForm").submit(function (e) {
+        e.preventDefault();
+
+        var newPassword = $("#NewPassword").val();
+        var confirmPassword = $("#ConfirmNewPassword").val();
+
+        if (newPassword !== confirmPassword) {
+            $("#passwordMessage")
+                .text("New passwords do not match.")
+                .removeClass("success")
+                .addClass("error");
+
+            return;
+        }
+
+        $("#changePasswordButton").prop("disabled", true);
+        $("#changePasswordButton").text("Changing password...");
+        $("#passwordMessage").text("");
+
+        $.ajax({
+            url: '@Url.Action("ChangePassword", "Customer")',
+            type: "POST",
+            data: $("#changePasswordForm").serialize(),
+
+            success: function (response) {
+                if (response.success) {
+                    $("#passwordMessage")
+                        .text(response.message)
+                        .removeClass("error")
+                        .addClass("success");
+
+                    $("#changePasswordForm")[0].reset();
+                }
+            },
+
+            error: function (xhr) {
+                var message = xhr.responseJSON?.message
+                    || "Unable to change password.";
+
+                $("#passwordMessage")
+                    .text(message)
+                    .removeClass("success")
+                    .addClass("error");
+            },
+
+            complete: function () {
+                $("#changePasswordButton").prop("disabled", false);
+                $("#changePasswordButton").text("Save New Password");
+            }
+        });
+    });
+
+
+    });
+</script>
+
+</body>
+</html>
