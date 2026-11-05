@@ -1,0 +1,35 @@
+@{
+    Layout = "_AdminLayout";
+    var section = ViewData["Section"]?.ToString() ?? "dashboard";
+    var titles = new Dictionary<string, (string Title, string Description)> {
+        ["dashboard"] = ("Overview", "A fresh look at your membership community."),
+        ["members"] = ("Members", "Get to know the people behind every visit."),
+        ["rewards"] = ("Rewards", "Turn loyalty into something worth coming back for."),
+        ["vouchers"] = ("Vouchers", "Thoughtful offers for your member community."),
+        ["highlights"] = ("Promotions", "Keep members in the loop with what’s brewing."),
+        ["outlets"] = ("Outlets", "Every place our community calls their local."),
+        ["staff"] = ("Outlet staff", "The people making every visit a little better."),
+        ["points"] = ("Point records", "Follow every point earned, assigned, and reviewed."),
+        ["redemptions"] = ("Redemptions", "A clear view of the rewards your members enjoy."),
+        ["feedback"] = ("Feedback", "Listen closely. Make the next visit even better.")
+    };
+    var page = titles[section];
+    ViewData["Title"] = page.Title;
+}
+<div class="page-heading"><div><p class="eyebrow">MEMBERSHIP / OPERATIONS</p><h1>@(page.Title)<span>.</span></h1><p class="muted">@(page.Description)</p></div><div class="heading-actions"><button id="refreshButton" class="button secondary" type="button">↻ Refresh</button><button id="createButton" class="button primary" type="button" hidden>+ Create</button></div></div>
+<div id="pageMessage" class="notice" role="status" aria-live="polite" hidden></div>
+<div id="loading" class="loading" role="status" hidden><span class="spinner"></span> Loading workspace…</div>
+<div id="dashboardContent" hidden>
+    <section id="metrics" class="metrics" aria-label="Membership summary"></section>
+    <section class="dashboard-panels"><article class="panel"><div class="panel-heading"><div><p class="eyebrow">LOYALTY ACTIVITY</p><h2>Every point has a story.</h2></div><span class="pill">ALL TIME</span></div><div id="pointsChart" class="chart" aria-label="Point records by status"></div></article><article class="panel community-panel"><p class="eyebrow">YOUR COMMUNITY</p><h2>Small gestures.<br />Lasting loyalty.</h2><p>Keep the experience fresh with a new reward or a thoughtful promotion.</p><a asp-controller="Admin" asp-action="Rewards" class="button secondary">Manage rewards →</a><a asp-controller="Admin" asp-action="Highlights" class="text-link">Explore promotions ↗</a></article></section>
+</div>
+<section class="panel data-panel">
+    <div class="table-heading"><div><p class="eyebrow" id="tableEyebrow">WORKSPACE DIRECTORY</p><h2 id="tableTitle">All records</h2></div><span id="recordCount" class="pill">0 records</span></div>
+    <div class="table-toolbar"><label class="search-box"><span class="sr-only">Search records</span><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Search by name, email, or ID…" autocomplete="off" /></label><label id="outletFilterWrap" hidden>Outlet<select id="outletFilter"><option value="">All outlets</option></select></label><label id="memberFilterWrap" hidden>Member<select id="memberFilter"><option value="">All members</option></select></label><label id="typeFilterWrap" hidden>Record type<select id="typeFilter"><option value="rewardRecords">Reward redemptions</option><option value="voucherRecords">Voucher redemptions</option></select></label><label id="statusFilterWrap" hidden>Status<select id="statusFilter"><option value="">All statuses</option></select></label></div>
+    <div class="table-scroll"><table id="recordsTable"><thead></thead><tbody></tbody></table></div>
+    <div id="emptyState" class="empty-state" hidden><span>○</span><h3 id="emptyTitle">No records yet</h3><p id="emptyDescription">Records will appear here when they’re available.</p></div>
+    <div class="pagination"><span id="pageInfo">0 records</span><div><button id="previousPage" class="button secondary" type="button">← Previous</button><button id="nextPage" class="button secondary" type="button">Next →</button></div></div>
+</section>
+<dialog id="editorDialog" class="admin-dialog" aria-labelledby="editorTitle"><div class="dialog-heading"><div><p class="eyebrow">MEMBERSHIP STUDIO</p><h2 id="editorTitle">Create record</h2></div><button type="button" class="icon-button close-dialog" aria-label="Close editor">×</button></div><form id="editorForm" enctype="multipart/form-data">@Html.AntiForgeryToken()<div id="editorFields" class="form-grid"></div><div id="editorMessage" class="notice" role="alert" hidden></div><div class="dialog-actions"><button type="button" class="button secondary close-dialog">Cancel</button><button type="submit" id="saveButton" class="button primary">Save changes</button></div></form></dialog>
+<dialog id="detailsDialog" class="admin-dialog" aria-labelledby="detailsTitle"><div class="dialog-heading"><div><p class="eyebrow">RECORD DETAILS</p><h2 id="detailsTitle">Details</h2></div><button type="button" class="icon-button close-dialog" aria-label="Close details">×</button></div><div id="detailsContent"></div><div class="dialog-actions"><button type="button" class="button secondary close-dialog">Close</button></div></dialog>
+<dialog id="confirmDialog" class="admin-dialog compact-dialog" aria-labelledby="confirmTitle"><h2 id="confirmTitle">Confirm change</h2><p id="confirmDescription"></p><div id="confirmMessage" class="notice" role="alert" hidden></div><div class="dialog-actions"><button type="button" class="button secondary close-dialog">Cancel</button><button id="confirmButton" type="button" class="button danger">Confirm</button></div></dialog>

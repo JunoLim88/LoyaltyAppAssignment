@@ -1,0 +1,48 @@
+@{
+    var section = ViewData["Section"]?.ToString() ?? "dashboard";
+    var links = new[] {
+        ("dashboard", "Dashboard", "Overview", "01"),
+        ("members", "Members", "Members", "02"),
+        ("rewards", "Rewards", "Rewards", "03"),
+        ("vouchers", "Vouchers", "Vouchers", "04"),
+        ("highlights", "Highlights", "Promotions", "05"),
+        ("outlets", "Outlets", "Outlets", "06"),
+        ("staff", "Staff", "Outlet staff", "07"),
+        ("points", "Points", "Point records", "08"),
+        ("redemptions", "Redemptions", "Redemptions", "09"),
+        ("feedback", "Feedback", "Feedback", "10")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] | Brew &amp; Bean Admin</title>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body data-admin-base="@Url.Content("~/Admin/")" data-section="@(section)">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <aside class="admin-sidebar">
+        <a class="admin-brand" asp-controller="Admin" asp-action="Dashboard"><span class="brand-mark">b.</span><span>BREW &amp; BEAN<small>MEMBERSHIP STUDIO</small></span></a>
+        <p class="nav-label">WORKSPACE</p>
+        <nav aria-label="Admin navigation">
+            @foreach (var (key, action, label, number) in links)
+            {
+                <a asp-controller="Admin" asp-action="@action" class="@(section == key ? "active" : "")" aria-current="@(section == key ? "page" : null)"><span>@number</span>@label</a>
+            }
+        </nav>
+        <div class="sidebar-bottom"><span class="avatar">A</span><div><strong>@Context.Session.GetString("AdminName")</strong><small>Administrator</small></div></div>
+        <form asp-controller="Admin" asp-action="Logout" method="post"><button class="signout" type="submit">Sign out <span>↗</span></button></form>
+    </aside>
+    <div class="admin-workspace">
+        <header class="admin-topbar"><span>Operations <span class="crumb">/ @ViewData["Title"]</span></span><div class="topbar-links"><a asp-controller="Customer" asp-action="Login">Member portal ↗</a><form class="mobile-signout" asp-controller="Admin" asp-action="Logout" method="post"><button class="button secondary" type="submit">Sign out</button></form></div></header>
+        <main id="main" tabindex="-1">@RenderBody()</main>
+        <footer class="admin-footer">BREW &amp; BEAN <span>A little care. A lasting connection.</span></footer>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/customer-images.js" asp-append-version="true"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

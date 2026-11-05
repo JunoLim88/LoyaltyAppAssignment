@@ -1,0 +1,42 @@
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin sign in | Brew &amp; Bean</title>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body class="admin-login">
+    <main class="login-shell">
+        <section class="login-story"><a class="admin-brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">b.</span><span>BREW &amp; BEAN<small>MEMBERSHIP STUDIO</small></span></a><div><p class="eyebrow">BEHIND EVERY GOOD CUP</p><h1>Good moments.<br />Thoughtfully<br /><em>managed.</em></h1><p>Your workspace for the people, places, and little rewards that keep our community coming back.</p></div><small>BREW &amp; BEAN · OPERATIONS</small></section>
+        <section class="login-panel"><div><p class="eyebrow">WELCOME BACK</p><h2>Admin sign in</h2><p class="muted">Sign in to your membership workspace.</p>
+            <form id="adminLogin" asp-controller="Admin" asp-action="Login" method="post">
+                <label for="Username">Username</label><input id="Username" name="Username" required maxlength="100" autocomplete="username" autofocus />
+                <label for="Password">Password</label><input id="Password" name="Password" type="password" required maxlength="200" autocomplete="current-password" />
+                <div id="loginMessage" class="notice" role="alert" hidden></div>
+                <button type="submit" class="button primary">Sign in <span>→</span></button>
+            </form><a class="back-link" asp-controller="Customer" asp-action="Login">← Go to the member portal</a></div>
+        </section>
+    </main>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(function () {
+            $("#adminLogin").on("submit", function (event) {
+                event.preventDefault();
+                var form = $(this), button = form.find("button");
+                button.prop("disabled", true).text("Signing in…");
+                $("#loginMessage").prop("hidden", true);
+                $.ajax({ url: form.attr("action"), type: "POST", data: form.serialize(),
+                    success: function (response) { window.location.href = response.redirectUrl; },
+                    error: function (xhr) {
+                        var data = xhr.responseJSON;
+                        $("#loginMessage").prop("hidden", false).text(data?.errors ? Object.values(data.errors).flat().join(" ") : data?.message || "Unable to sign in. Please try again.");
+                    },
+                    complete: function () { button.prop("disabled", false).text("Sign in →"); }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

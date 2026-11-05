@@ -2,6 +2,11 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient<LoyaltyAppAssignment.Services.AdminApiClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["LoyaltyApi:BaseUrl"] ?? "https://alpacaapi.xcode.com.my/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 // Enable Session
 builder.Services.AddDistributedMemoryCache();
@@ -26,7 +31,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Customer}/{action=Login}/{id?}")
     .WithStaticAssets();
 
 app.Run();
