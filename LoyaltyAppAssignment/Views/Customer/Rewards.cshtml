@@ -97,6 +97,8 @@
         <!-- REWARD DETAILS -->
         <section id="rewardDetails" class="reward-details" style="display:none;">
 
+            <div id="rewardDetailImage"></div>
+
             <p class="form-subtitle">YOUR SELECTED REWARD</p>
 
             <h2 id="detailTitle"></h2>
@@ -190,6 +192,7 @@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/customer-images.js" asp-append-version="true"></script>
 
     <script>
         $(function () {
@@ -240,9 +243,9 @@
 
                         var card = $("<div>").addClass("reward-card");
 
-                        var icon = $("<div>")
-                            .addClass("reward-card-icon")
-                            .text("🎁");
+                        var icon = customerImages.create(
+                            reward.image, "MerchantReward", reward.title || reward.name,
+                            "reward-card-icon", "🎁");
 
                         var content = $("<div>")
                             .addClass("reward-card-content");
@@ -271,6 +274,10 @@
                             .text("View Details");
 
                         button.click(function () {
+
+                            $("#rewardDetailImage").empty().append(customerImages.create(
+                                reward.image, "MerchantReward", reward.title || reward.name,
+                                "api-detail-image", "🎁"));
 
                             $("#detailTitle").text(reward.title);
                             $("#detailSubtitle").text(reward.subTitle || "");

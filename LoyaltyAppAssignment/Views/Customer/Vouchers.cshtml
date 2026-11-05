@@ -142,6 +142,8 @@
                  class="voucher-details"
                  style="display:none;">
 
+            <div id="voucherDetailImage"></div>
+
             <p class="form-subtitle">
                 VOUCHER INFORMATION
             </p>
@@ -244,6 +246,7 @@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/customer-images.js" asp-append-version="true"></script>
 
     <script>
         $(function () {
@@ -329,9 +332,9 @@
                     var card = $("<div>")
                         .addClass("voucher-card");
 
-                    var icon = $("<div>")
-                        .addClass("voucher-card-icon")
-                        .text("🎟️");
+                    var icon = customerImages.create(
+                        voucher.image, "MerchantReward", voucher.title || voucher.voucherName,
+                        "voucher-card-icon", "🎟️");
 
                     var content = $("<div>")
                         .addClass("voucher-card-content");
@@ -362,6 +365,9 @@
                         .text("View Details");
 
                     button.click(function () {
+                        $("#voucherDetailImage").empty().append(customerImages.create(
+                            voucher.image, "MerchantReward", voucher.title || voucher.voucherName,
+                            "api-detail-image", "🎟️"));
                         $("#voucherDetailTitle").text(
                             voucher.title || voucher.voucherName
                         );

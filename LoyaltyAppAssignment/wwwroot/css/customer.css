@@ -1115,10 +1115,49 @@ body.dashboard-page {
     background: radial-gradient(circle at 85% 70%, #80563d, transparent 55%), linear-gradient(130deg, #3c291f, #5d3d2c);
     color: #fff3e5;
     border-radius: 18px;
-    padding: 45px;
+    overflow: hidden;
     min-height: 250px;
     display: flex;
+    flex-direction: column;
+}
+
+.highlight-content {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 35px;
+}
+
+.highlight-card-image {
+    width: 100%;
+    height: 230px;
+    background: #efe1cf;
+}
+
+.api-card-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.api-image-fallback {
+    display: flex;
+    justify-content: center;
     align-items: center;
+    font-size: 75px;
+}
+
+.api-detail-image {
+    width: 100%;
+    height: 300px;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #efe1cf;
+}
+
+.api-detail-image .api-card-image {
+    object-fit: contain;
 }
 
 .highlight-content h3 {
@@ -1163,7 +1202,7 @@ body.dashboard-page {
         grid-template-columns: 1fr;
     }
 
-    .highlight-card {
+    .highlight-content {
         padding: 30px;
     }
 }

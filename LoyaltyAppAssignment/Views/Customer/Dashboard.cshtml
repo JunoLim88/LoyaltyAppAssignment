@@ -270,6 +270,7 @@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/customer-images.js" asp-append-version="true"></script>
 
     <script>
             $(function () {
@@ -325,6 +326,10 @@
                     $.each(highlights, function (index, item) {
 
                         var card = $("<div>").addClass("highlight-card");
+
+                        card.append(customerImages.create(
+                            item.image, "MerchantHighlight", item.title,
+                            "highlight-card-image", "☕"));
 
                         var content = $("<div>").addClass("highlight-content");
 
