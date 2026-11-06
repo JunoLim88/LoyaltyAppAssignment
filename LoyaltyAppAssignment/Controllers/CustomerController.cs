@@ -37,7 +37,7 @@ namespace LoyaltyAppAssignment.Controllers
 
                 // Call the API
                 var response = await client.PostAsJsonAsync(
-                    "https://alpacaapi.xcode.com.my/api/Member/MemberLogin",
+                    "https://alpacaapi.xcode.com.my/api/Members/MemberLogin",
                     loginData
                 );
 
@@ -51,10 +51,10 @@ namespace LoyaltyAppAssignment.Controllers
                     {
                         // Remember the logged-in customer
                         HttpContext.Session.SetString(
-                            "MemberToken", result.SuccessToken);
+                            "MembersToken", result.SuccessToken);
 
                         HttpContext.Session.SetString(
-                            "MemberEmail", result.Email);
+                            "MembersEmail", result.Email);
 
                         return Json(new
                         {
